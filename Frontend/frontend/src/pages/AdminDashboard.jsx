@@ -17,7 +17,7 @@ function AdminDashboard() {
       {feedback.map((f, index) => (
         <div key={index}>
           <strong>{f.name}</strong> – {f.rating}/5
-          <p>{f.comments}</p>
+          <p>{f.comments}</p><p>{f.created_at}</p>
           <hr />
         </div>
       ))}
