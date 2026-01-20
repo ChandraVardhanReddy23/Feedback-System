@@ -9,6 +9,7 @@ function FeedbackForm() {
   const [rating, setRating] = useState(5);
   const [comments, setComments] = useState("");
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const token = localStorage.getItem("token");
@@ -41,6 +42,8 @@ function FeedbackForm() {
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("Failed to load faculties. Please refresh.");
+    } finally {
+      setInitialLoading(false);
     }
   };
 
@@ -114,77 +117,96 @@ function FeedbackForm() {
         {error && <div className="alert alert-error">{error}</div>}
         {success && <div className="alert alert-success">{success}</div>}
 
-        <form onSubmit={submitFeedback}>
-          <div className="form-group">
-            <label htmlFor="faculty">Select Faculty / Subject *</label>
-            <select
-              id="faculty"
-              value={selectedFaculty}
-              onChange={(e) => setSelectedFaculty(e.target.value)}
-              required
-              disabled={loading}
-            >
-              <option value="">-- Choose a faculty --</option>
-              {getAvailableFaculties().map((fac) => (
-                <option key={fac.id} value={fac.id}>
-                  {fac.name} ({fac.department})
-                </option>
-              ))}
-            </select>
-            {getAvailableFaculties().length === 0 && faculties.length > 0 && (
-              <p className="info-text">✓ You have submitted feedback for all faculties</p>
-            )}
+        {initialLoading ? (
+          <div className="loading-state">
+            <p>Loading faculties...</p>
           </div>
+        ) : (
+          <form onSubmit={submitFeedback}>
+            <div className="form-group">
+              <label htmlFor="faculty">Select Faculty / Subject *</label>
+              <select
+                id="faculty"
+                value={selectedFaculty}
+                onChange={(e) => setSelectedFaculty(e.target.value)}
+                required
+                disabled={loading}
+              >
+                <option value="">-- Choose a faculty --</option>
+                {getAvailableFaculties().length > 0 && (
+                  <optgroup label="Available">
+                    {getAvailableFaculties().map((fac) => (
+                      <option key={fac.id} value={fac.id}>
+                        {fac.name} ({fac.department})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {getSubmittedFaculties().length > 0 && (
+                  <optgroup label="Already Submitted" disabled>
+                    {getSubmittedFaculties().map((fac) => (
+                      <option key={fac.id} value={fac.id} disabled>
+                        {fac.name} ({fac.department})
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              {getAvailableFaculties().length === 0 && faculties.length > 0 && (
+                <p className="info-text">You have submitted feedback for all faculties</p>
+              )}
+            </div>
 
-          <div className="form-group">
-            <label htmlFor="rating">Rating *</label>
-            <div className="rating-input">
-              <input
-                id="rating"
-                type="range"
-                min="1"
-                max="5"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
+            <div className="form-group">
+              <label htmlFor="rating">Rating *</label>
+              <div className="rating-input">
+                <input
+                  id="rating"
+                  type="range"
+                  min="1"
+                  max="5"
+                  value={rating}
+                  onChange={(e) => setRating(e.target.value)}
+                  disabled={loading || !selectedFaculty}
+                />
+                <span className="rating-value">{rating} / 5</span>
+              </div>
+              <div className="stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    className={`star ${star <= rating ? "filled" : ""}`}
+                    onClick={() => setRating(star)}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="comments">Comments (Optional)</label>
+              <textarea
+                id="comments"
+                placeholder="Share your thoughts, suggestions, or concerns..."
+                value={comments}
+                onChange={(e) => setComments(e.target.value)}
+                maxLength={1000}
                 disabled={loading || !selectedFaculty}
+                rows={5}
               />
-              <span className="rating-value">{rating} / 5</span>
+              <p className="char-count">{comments.length} / 1000 characters</p>
             </div>
-            <div className="stars">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <span
-                  key={star}
-                  className={`star ${star <= rating ? "filled" : ""}`}
-                  onClick={() => setRating(star)}
-                >
-                  ★
-                </span>
-              ))}
-            </div>
-          </div>
 
-          <div className="form-group">
-            <label htmlFor="comments">Comments (Optional)</label>
-            <textarea
-              id="comments"
-              placeholder="Share your thoughts, suggestions, or concerns..."
-              value={comments}
-              onChange={(e) => setComments(e.target.value)}
-              maxLength={1000}
-              disabled={loading || !selectedFaculty}
-              rows={5}
-            />
-            <p className="char-count">{comments.length} / 1000 characters</p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || !selectedFaculty || feedbackStatus[selectedFaculty]}
-            className="btn-submit"
-          >
-            {loading ? "Submitting..." : "Submit Feedback"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={loading || !selectedFaculty || feedbackStatus[selectedFaculty]}
+              className="btn-submit"
+            >
+              {loading ? "Submitting..." : "Submit Feedback"}
+            </button>
+          </form>
+        )}
 
         {getSubmittedFaculties().length > 0 && (
           <div className="submitted-section">
