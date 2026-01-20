@@ -47,7 +47,7 @@ CREATE TABLE feedbacks (
 
 -- Insert admin user
 INSERT INTO users (email, password, institutional_id, name, role) 
-VALUES ('admin@college.com', '$2a$10$YOUR_HASHED_PASSWORD_HERE', 'ADMIN001', 'Admin User', 'admin');
+VALUES ('admin@college.com', 'admin', 'ADMIN001', 'Admin User', 'admin');
 
 -- Insert sample faculties
 INSERT INTO faculties (name, department, email) VALUES
@@ -59,9 +59,10 @@ INSERT INTO faculties (name, department, email) VALUES
 
 -- Insert sample students (passwords should be bcrypt hashed in production)
 INSERT INTO users (email, password, institutional_id, name, role) VALUES
-('student1@college.com', '$2a$10$YOUR_HASHED_PASSWORD_HERE', 'STU001', 'Student One', 'student'),
-('student2@college.com', '$2a$10$YOUR_HASHED_PASSWORD_HERE', 'STU002', 'Student Two', 'student'),
-('student3@college.com', '$2a$10$YOUR_HASHED_PASSWORD_HERE', 'STU003', 'Student Three', 'student');
+('student1@college.com', 's1', 'STU001', 'Student One', 'student'),
+('student2@college.com', 's2', 'STU002', 'Student Two', 'student'),
+('student3@college.com', 's3', 'STU003', 'Student Three','student'),
+('student4@college.com', 's4', 'STU004', 'Student Four','student');
 
 -- Insert sample feedback (anonymous to admins - only user_id links them)
 INSERT INTO feedbacks (user_id, faculty_id, rating, comments) VALUES
