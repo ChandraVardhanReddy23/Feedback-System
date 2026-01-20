@@ -205,4 +205,42 @@ router.delete("/faculties/:id", verifyToken, isAdmin, (req, res) => {
   });
 });
 
+// Get top and bottom faculty analytics
+router.get("/analytics/top-bottom-faculty", verifyToken, isAdmin, (req, res) => {
+  Feedback.getTopBottomFaculty((err, analytics) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: "Database error" });
+    }
+
+    // Format the response
+    const formatFaculty = (faculty) => ({
+      faculty_id: faculty.faculty_id,
+      faculty_name: faculty.faculty_name,
+      department: faculty.department,
+      average_rating: parseFloat(faculty.average_rating).toFixed(2),
+      total_feedbacks: faculty.total_feedbacks
+    });
+
+    res.status(200).json({
+      success: true,
+      top_faculties: analytics.top.map(formatFaculty),
+      bottom_faculties: analytics.bottom.map(formatFaculty)
+    });
+  });
+});
+
+// Get rating distribution analytics
+router.get("/analytics/rating-distribution", verifyToken, isAdmin, (req, res) => {
+  Feedback.getRatingDistribution((err, distribution) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: "Database error" });
+    }
+
+    res.status(200).json({
+      success: true,
+      distribution
+    });
+  });
+});
+
 module.exports = router;

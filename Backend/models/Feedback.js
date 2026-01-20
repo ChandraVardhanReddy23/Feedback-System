@@ -91,7 +91,7 @@ const Feedback = {
   // Get feedback statistics (anonymous)
   getStatistics: (facultyId, callback) => {
     const query = `
-      SELECT 
+      SELECT
         COUNT(*) as total_feedbacks,
         AVG(rating) as average_rating,
         MIN(rating) as min_rating,
@@ -102,6 +102,49 @@ const Feedback = {
     db.query(query, [facultyId], (err, results) => {
       if (err) return callback(err);
       callback(null, results[0]);
+    });
+  },
+
+  // Get top and bottom faculty analytics
+  getTopBottomFaculty: (callback) => {
+    const query = `
+      SELECT
+        f.id as faculty_id,
+        f.name as faculty_name,
+        f.department,
+        AVG(fb.rating) as average_rating,
+        COUNT(fb.id) as total_feedbacks
+      FROM faculties f
+      LEFT JOIN feedbacks fb ON f.id = fb.faculty_id
+      GROUP BY f.id, f.name, f.department
+      HAVING total_feedbacks > 0
+      ORDER BY average_rating DESC
+    `;
+    db.query(query, (err, results) => {
+      if (err) return callback(err);
+      const top3 = results.slice(0, 3);
+      const bottom3 = results.slice(-3).reverse(); // Reverse to get lowest first
+      callback(null, { top: top3, bottom: bottom3 });
+    });
+  },
+
+  // Get rating distribution analytics
+  getRatingDistribution: (callback) => {
+    const query = `
+      SELECT
+        rating,
+        COUNT(*) as count
+      FROM feedbacks
+      GROUP BY rating
+      ORDER BY rating ASC
+    `;
+    db.query(query, (err, results) => {
+      if (err) return callback(err);
+      const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+      results.forEach(row => {
+        distribution[row.rating] = row.count;
+      });
+      callback(null, distribution);
     });
   }
 };

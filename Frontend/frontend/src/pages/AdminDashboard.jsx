@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import "../styles/AdminDashboard.css";
 
 function AdminDashboard() {
@@ -12,12 +13,18 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [view, setView] = useState("all");
+  const [topFaculties, setTopFaculties] = useState([]);
+  const [bottomFaculties, setBottomFaculties] = useState([]);
+  const [ratingDistribution, setRatingDistribution] = useState(null);
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   useEffect(() => {
     if (user.role !== "admin") navigate("/");
-    else fetchFaculties();
+    else {
+      fetchFaculties();
+      fetchAnalytics();
+    }
   }, []);
 
   const fetchFaculties = async () => {
@@ -73,6 +80,26 @@ function AdminDashboard() {
       setError("Failed to load faculty details");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const topBottomRes = await axios.get("http://localhost:5000/api/admin/analytics/top-bottom-faculty", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const ratingDistRes = await axios.get("http://localhost:5000/api/admin/analytics/rating-distribution", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (topBottomRes.data.success) {
+        setTopFaculties(topBottomRes.data.top_faculties);
+        setBottomFaculties(topBottomRes.data.bottom_faculties);
+      }
+      if (ratingDistRes.data.success) {
+        setRatingDistribution(ratingDistRes.data.distribution);
+      }
+    } catch (err) {
+      console.error("Failed to load analytics", err);
     }
   };
 
@@ -133,33 +160,116 @@ function AdminDashboard() {
           {loading && <div className="loading">Loading...</div>}
 
           {view === "all" && !loading && (
-            <section className="feedback-section">
-              <h2>All Feedback</h2>
-              <p className="section-subtitle">Anonymous feedback from all students</p>
-              {feedbacks.length === 0 ? (
-                <div className="no-data"><p>No feedback received yet.</p></div>
-              ) : (
-                <div className="feedback-grid">
-                  {feedbacks.map((feedback) => (
-                    <div key={feedback.id} className="feedback-card">
-                      <div className="feedback-header">
-                        <div className="faculty-info">
-                          <h3>{feedback.faculty_name}</h3>
-                          <p>{feedback.department}</p>
-                        </div>
-                        <div className={`rating-badge ${getRatingColor(feedback.rating)}`}>
-                          {feedback.rating}<span className="stars">★</span>
-                        </div>
+            <>
+              {/* Analytics Sections */}
+              <section className="analytics-section">
+                <h2>Faculty Performance Analytics</h2>
+
+                {/* Top Faculty */}
+                <div className="analytics-grid">
+                  <div className="analytics-card">
+                    <h3>🏆 Top Performing Faculty</h3>
+                    {topFaculties.length === 0 ? (
+                      <p>No data available</p>
+                    ) : (
+                      <div className="faculty-list">
+                        {topFaculties.map((faculty, index) => (
+                          <div key={faculty.faculty_id} className="faculty-item-analytics">
+                            <span className="rank">#{index + 1}</span>
+                            <div className="faculty-details">
+                              <strong>{faculty.faculty_name}</strong>
+                              <p>{faculty.department}</p>
+                            </div>
+                            <div className="faculty-stats">
+                              <span className="avg-rating">{faculty.average_rating} ★</span>
+                              <span className="feedback-count">({faculty.total_feedbacks} feedbacks)</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div className="feedback-body">
-                        {feedback.comments && <p className="comments">{feedback.comments}</p>}
-                        <p className="timestamp">{formatDate(feedback.created_at)}</p>
+                    )}
+                  </div>
+
+                  {/* Bottom Faculty */}
+                  <div className="analytics-card">
+                    <h3>⚠️ Faculty Needing Attention</h3>
+                    {bottomFaculties.length === 0 ? (
+                      <p>No data available</p>
+                    ) : (
+                      <div className="faculty-list">
+                        {bottomFaculties.map((faculty, index) => (
+                          <div key={faculty.faculty_id} className="faculty-item-analytics">
+                            <span className="rank">#{index + 1}</span>
+                            <div className="faculty-details">
+                              <strong>{faculty.faculty_name}</strong>
+                              <p>{faculty.department}</p>
+                            </div>
+                            <div className="faculty-stats">
+                              <span className="avg-rating">{faculty.average_rating} ★</span>
+                              <span className="feedback-count">({faculty.total_feedbacks} feedbacks)</span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  ))}
+                    )}
+                  </div>
                 </div>
-              )}
-            </section>
+
+                {/* Rating Distribution Chart */}
+                <div className="analytics-card chart-card">
+                  <h3>Rating Distribution</h3>
+                  {ratingDistribution ? (
+                    <div className="rating-chart">
+                      {Object.entries(ratingDistribution).map(([rating, count]) => (
+                        <div key={rating} className="chart-bar-container">
+                          <span className="chart-label">{rating} ★</span>
+                          <div className="chart-bar-wrapper">
+                            <div
+                              className="chart-bar"
+                              style={{
+                                width: `${Math.max((count / Math.max(...Object.values(ratingDistribution))) * 100, 5)}%`
+                              }}
+                            >
+                              <span className="chart-value">{count}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>Loading chart...</p>
+                  )}
+                </div>
+              </section>
+
+              <section className="feedback-section">
+                <h2>All Feedback</h2>
+                <p className="section-subtitle">Anonymous feedback from all students</p>
+                {feedbacks.length === 0 ? (
+                  <div className="no-data"><p>No feedback received yet.</p></div>
+                ) : (
+                  <div className="feedback-grid">
+                    {feedbacks.map((feedback) => (
+                      <div key={feedback.id} className="feedback-card">
+                        <div className="feedback-header">
+                          <div className="faculty-info">
+                            <h3>{feedback.faculty_name}</h3>
+                            <p>{feedback.department}</p>
+                          </div>
+                          <div className={`rating-badge ${getRatingColor(feedback.rating)}`}>
+                            {feedback.rating}<span className="stars">★</span>
+                          </div>
+                        </div>
+                        <div className="feedback-body">
+                          {feedback.comments && <p className="comments">{feedback.comments}</p>}
+                          <p className="timestamp">{formatDate(feedback.created_at)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            </>
           )}
 
           {view === "detail" && selectedFaculty && !loading && (
