@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_BASE from "../config/api";
 import "../styles/StudentLogin.css";
 
 function StudentLogin() {
@@ -35,7 +36,7 @@ function StudentLogin() {
         return;
       }
 
-      const response = await axios.post("http://localhost:5000/api/auth/login", loginForm);
+      const response = await axios.post(`${API_BASE}/api/auth/login`, loginForm);
 
       if (response.data.success) {
         // Store token in localStorage
@@ -77,7 +78,7 @@ function StudentLogin() {
         return;
       }
 
-      const response = await axios.post("http://localhost:5000/api/auth/register", {
+      const response = await axios.post(`${API_BASE}/api/auth/register`, {
         email: registerForm.email,
         password: registerForm.password,
         institutional_id: registerForm.institutional_id,

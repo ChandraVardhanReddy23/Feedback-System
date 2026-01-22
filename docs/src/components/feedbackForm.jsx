@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import API_BASE from "../config/api";
 import "../styles/FeedbackForm.css";
 
 function FeedbackForm() {
@@ -22,14 +23,14 @@ function FeedbackForm() {
   const fetchData = async () => {
     try {
       // Fetch faculties
-      const facultiesRes = await axios.get("http://localhost:5000/api/feedback/faculties", {
+      const facultiesRes = await axios.get(`${API_BASE}/api/feedback/faculties`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
       setFaculties(facultiesRes.data.faculties || []);
 
       // Fetch feedback status
-      const statusRes = await axios.get("http://localhost:5000/api/feedback/status", {
+      const statusRes = await axios.get(`${API_BASE}/api/feedback/status`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -67,7 +68,7 @@ function FeedbackForm() {
       }
 
       const response = await axios.post(
-        "http://localhost:5000/api/feedback/submit",
+        `${API_BASE}/api/feedback/submit`,
         {
           faculty_id: parseInt(selectedFaculty),
           rating: parseInt(rating),

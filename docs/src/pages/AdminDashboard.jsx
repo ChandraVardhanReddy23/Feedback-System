@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import API_BASE from "../config/api";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import "../styles/AdminDashboard.css";
 
@@ -30,7 +31,7 @@ function AdminDashboard() {
   const fetchFaculties = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/admin/faculties", {
+      const response = await axios.get(`${API_BASE}/api/admin/faculties`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) setFaculties(response.data.faculties);
@@ -45,7 +46,7 @@ function AdminDashboard() {
     try {
       setLoading(true);
       setError("");
-      const response = await axios.get("http://localhost:5000/api/admin/feedback", {
+      const response = await axios.get(`${API_BASE}/api/admin/feedback`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.data.success) {
@@ -64,10 +65,10 @@ function AdminDashboard() {
     try {
       setLoading(true);
       setError("");
-      const feedbackRes = await axios.get(`http://localhost:5000/api/admin/feedback/faculty/${facultyId}`, {
+      const feedbackRes = await axios.get(`${API_BASE}/api/admin/feedback/faculty/${facultyId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const statsRes = await axios.get(`http://localhost:5000/api/admin/statistics/faculty/${facultyId}`, {
+      const statsRes = await axios.get(`${API_BASE}/api/admin/statistics/faculty/${facultyId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (feedbackRes.data.success && statsRes.data.success) {
@@ -85,10 +86,10 @@ function AdminDashboard() {
 
   const fetchAnalytics = async () => {
     try {
-      const topBottomRes = await axios.get("http://localhost:5000/api/admin/analytics/top-bottom-faculty", {
+      const topBottomRes = await axios.get(`${API_BASE}/api/admin/analytics/top-bottom-faculty`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const ratingDistRes = await axios.get("http://localhost:5000/api/admin/analytics/rating-distribution", {
+      const ratingDistRes = await axios.get(`${API_BASE}/api/admin/analytics/rating-distribution`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (topBottomRes.data.success) {
