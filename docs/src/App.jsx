@@ -11,7 +11,7 @@ import LandingPage from './pages/LandingPage.jsx';
 
 function App() {
   return (
-    <BrowserRouter>
+    
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/student-login" element={<StudentLogin />} />
@@ -19,7 +19,7 @@ function App() {
         <Route path="/admin-login" element={<AdminLogin />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
-    </BrowserRouter>
+    
   );
 }
 
