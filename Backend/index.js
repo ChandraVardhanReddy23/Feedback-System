@@ -11,12 +11,27 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express(); // ✅ THIS WAS MISSING
 
 // Middleware
+
+
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://chandravardhanreddy23.github.io"
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
 }));
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // Routes
 app.use("/api/auth", authRoutes);
