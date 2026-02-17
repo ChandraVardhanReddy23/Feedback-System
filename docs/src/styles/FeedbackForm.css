@@ -236,3 +236,85 @@
   font-weight: bold;
   font-size: 18px;
 }
+/* Generic Questions Section */
+.generic-questions-section {
+  background: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  margin: 30px 0;
+  border-left: 4px solid #667eea;
+}
+
+.generic-questions-section h3 {
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.generic-question {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.generic-question:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.generic-question label {
+  display: block;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+/* Star Rating Container */
+.star-rating-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.star-rating-container .stars {
+  display: flex;
+  gap: 8px;
+  font-size: 22px;
+}
+
+.star-button {
+  color: #ddd;
+  cursor: pointer !important;
+  transition: color 0.2s, transform 0.1s;
+  pointer-events: auto !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.star-button:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.star-button.filled {
+  color: #ffc107;
+}
+
+.star-button:hover {
+  color: #ffc107;
+  transform: scale(1.15);
+}
+
+.star-button:active {
+  transform: scale(0.95);
+}
+
+.star-value {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+  min-width: 45px;
+}

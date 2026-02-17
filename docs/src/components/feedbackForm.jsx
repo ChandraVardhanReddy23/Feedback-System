@@ -3,12 +3,45 @@ import axios from "axios";
 import API_BASE from "../config/api";
 import "../styles/FeedbackForm.css";
 
+// StarRating Component
+function StarRating({ value = 0, onChange }) {
+  return (
+    <div className="stars">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <span
+          key={star}
+          className={`star ${star <= value ? "filled" : ""}`}
+          onClick={() => onChange(star)}
+          style={{
+            cursor: "pointer",
+            fontSize: "22px",
+            color: star <= value ? "gold" : "#ccc",
+          }}
+        >
+          ★
+        </span>
+      ))}
+    </div>
+  );
+}
+
+
+// Generic Questions
+const GENERIC_QUESTIONS = [
+  "How would you rate the instructor's teaching clarity?",
+  "How well did the instructor engage the class during lectures?",
+  "How effectively did the instructor address your questions?",
+  "How well-organized and structured was the course?",
+  "How would you rate the instructor's overall performance?"
+];
+
 function FeedbackForm() {
   const [faculties, setFaculties] = useState([]);
   const [feedbackStatus, setFeedbackStatus] = useState({});
   const [selectedFaculty, setSelectedFaculty] = useState("");
   const [rating, setRating] = useState(5);
   const [comments, setComments] = useState("");
+  const [genericQuestionRatings, setGenericQuestionRatings] = useState([5, 5, 5, 5, 5]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState("");
@@ -84,6 +117,7 @@ function FeedbackForm() {
         setSelectedFaculty("");
         setRating(5);
         setComments("");
+        setGenericQuestionRatings([5, 5, 5, 5, 5]);
         
         // Update status
         setFeedbackStatus({
@@ -159,7 +193,7 @@ function FeedbackForm() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="rating">Rating *</label>
+              <label htmlFor="rating">Overall Rating *</label>
               <div className="rating-input">
                 <input
                   id="rating"
@@ -183,6 +217,24 @@ function FeedbackForm() {
                   </span>
                 ))}
               </div>
+            </div>
+
+            <div className="generic-questions-section">
+              <h3>Please rate the instructor on the following:</h3>
+              {GENERIC_QUESTIONS.map((question, index) => (
+                <div key={index} className="generic-question">
+                  <label>{question}</label>
+                  <StarRating
+                    value={genericQuestionRatings[index]}
+                    onChange={(value) => {
+                      const newRatings = [...genericQuestionRatings];
+                      newRatings[index] = value;
+                      setGenericQuestionRatings(newRatings);
+                    }}
+                    disabled={loading || !selectedFaculty}
+                  />
+                </div>
+              ))}
             </div>
 
             <div className="form-group">
