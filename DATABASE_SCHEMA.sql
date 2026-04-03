@@ -1,5 +1,5 @@
 -- Feedback System Database Schema
-
+USE feedback_system;
 -- Users Table
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
